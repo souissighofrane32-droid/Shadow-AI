@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shadow AI Compliance Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+<main class="mx-auto max-w-7xl p-6">
+<header class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+<div><p class="text-sm font-semibold uppercase tracking-widest text-cyan-400">LexHack 2026</p><h1 class="text-3xl font-bold">Shadow AI</h1><p class="mt-1 text-slate-400">Policy & Compliance Auditor</p></div>
+<div class="flex gap-2"><a href="/api/reports/export-pdf" class="rounded-lg bg-cyan-500 px-4 py-2 font-semibold text-slate-950">Export PDF</a><a href="/api/reports/export-json" class="rounded-lg border border-slate-700 px-4 py-2">Export JSON</a></div>
+</header>
+<section class="grid gap-4 md:grid-cols-4">
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5"><p class="text-sm text-slate-400">Total incidents</p><p id="total" class="mt-2 text-3xl font-bold">—</p></div>
+<div class="rounded-2xl border border-red-900/60 bg-slate-900 p-5"><p class="text-sm text-red-300">Critical</p><p id="critical" class="mt-2 text-3xl font-bold">—</p></div>
+<div class="rounded-2xl border border-orange-900/60 bg-slate-900 p-5"><p class="text-sm text-orange-300">High</p><p id="high" class="mt-2 text-3xl font-bold">—</p></div>
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5"><p class="text-sm text-slate-400">Blocked</p><p id="blocked" class="mt-2 text-3xl font-bold">—</p></div>
+</section>
+<section class="mt-6 grid gap-6 lg:grid-cols-3">
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5"><div class="mb-4 flex justify-between"><h2 class="font-semibold">Risk breakdown</h2><span id="updated" class="text-xs text-slate-500"></span></div><div id="risk-bars" class="space-y-4"></div></div>
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5 lg:col-span-2">
+<div class="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 class="font-semibold">Live incidents</h2><div class="flex gap-2"><select id="risk-filter" class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm"><option value="">All risks</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select><button id="refresh" class="rounded-lg border border-slate-700 px-3 py-2 text-sm">Refresh</button></div></div>
+<div class="overflow-x-auto"><table class="w-full text-left text-sm"><thead class="border-b border-slate-800 text-slate-400"><tr><th class="py-3">Time</th><th>Source</th><th>Risk</th><th>Score</th><th>Status</th><th>Findings</th></tr></thead><tbody id="incidents"></tbody></table></div>
+</div></section>
+</main><script src="/dashboard/script.js"></script>
+</body></html>
