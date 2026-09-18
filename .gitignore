@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+shadow_ai.db
+*.sqlite
+*.sqlite3
+.DS_Store
+.vscode/
+.idea/
+node_modules/
+dist/
+build/
