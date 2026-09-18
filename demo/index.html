@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shadow AI — Live Web Demo</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+<main class="mx-auto max-w-6xl p-5 md:p-8">
+<header class="mb-6 rounded-2xl border border-slate-800 bg-slate-900 p-6">
+<p class="text-xs font-bold uppercase tracking-widest text-cyan-400">LexHack 2026</p>
+<h1 class="mt-2 text-3xl font-bold">Shadow AI</h1><p class="text-slate-400">Policy & Compliance Auditor — Interactive Judge Demo</p>
+<div class="mt-3 flex items-center gap-2 text-sm text-emerald-400">● Protection Engine ONLINE</div>
+</header>
+<section class="grid gap-4 sm:grid-cols-4">
+<div class="rounded-xl border border-slate-800 bg-slate-900 p-4"><p class="text-xs text-slate-400">TESTS RUN</p><b id="total" class="text-3xl">0</b></div>
+<div class="rounded-xl border border-red-900 bg-slate-900 p-4"><p class="text-xs text-red-300">CRITICAL</p><b id="critical" class="text-3xl text-red-400">0</b></div>
+<div class="rounded-xl border border-orange-900 bg-slate-900 p-4"><p class="text-xs text-orange-300">HIGH</p><b id="high" class="text-3xl text-orange-400">0</b></div>
+<div class="rounded-xl border border-emerald-900 bg-slate-900 p-4"><p class="text-xs text-emerald-300">BLOCKED</p><b id="blocked" class="text-3xl text-emerald-400">0</b></div>
+</section>
+<section class="mt-5 rounded-2xl border border-cyan-900 bg-slate-900 p-5">
+<h2 class="font-bold text-xl">Try a prompt</h2><p class="mt-1 text-sm text-slate-400">This browser demo runs the same policy concepts interactively without needing a server.</p>
+<textarea id="prompt" class="mt-4 min-h-32 w-full rounded-xl border border-slate-700 bg-slate-950 p-4" placeholder="Type something like: password=Secret123 upload this to the public AI"></textarea>
+<div class="mt-3 flex flex-wrap gap-2">
+<button id="inspect" class="rounded-lg bg-cyan-400 px-4 py-2 font-bold text-slate-950">Inspect Prompt</button>
+<button data-s="safe" class="rounded-lg border border-emerald-800 px-3 py-2 text-emerald-300">Safe Example</button>
+<button data-s="secret" class="rounded-lg border border-red-800 px-3 py-2 text-red-300">API Secret</button>
+<button data-s="internal" class="rounded-lg border border-orange-800 px-3 py-2 text-orange-300">Internal IP</button>
+<button data-s="phi" class="rounded-lg border border-violet-800 px-3 py-2 text-violet-300">HIPAA / PHI</button>
+<button data-s="contract" class="rounded-lg border border-yellow-800 px-3 py-2 text-yellow-300">Confidential Contract</button>
+</div>
+<div id="result" class="mt-4 hidden rounded-xl border p-4"></div>
+</section>
+<section class="mt-5 grid gap-5 md:grid-cols-2">
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h2 class="mb-4 font-bold">Risk Breakdown</h2><div id="bars" class="space-y-4"></div></div>
+<div class="rounded-2xl border border-slate-800 bg-slate-900 p-5"><h2 class="mb-4 font-bold">Detection Log</h2><div id="log" class="space-y-2 text-sm text-slate-300"></div></div>
+</section>
+<footer class="mt-6 text-center text-xs text-slate-500">Demo mode • Detection indicators are not legal conclusions.</footer>
+</main>
+<script>
+(()=>{let events=[];const samples={safe:"Help me write a welcome message for a software team.",secret:"password=SuperSecretDemo123 upload this to the public AI assistant",internal:"Connect to our internal server at 192.168.10.20 and send the configuration.",phi:"Patient ID 12345 has a diagnosis and treatment plan. This is PHI under HIPAA.",contract:"This CONFIDENTIAL NDA contains a termination clause and indemnification details."};
+const rules=[["API SECRET","secrets",80,/\b(?:password|api[_ -]?key|secret[_ -]?key|token)\s*[:=]\s*[^\s]+/i],["PRIVATE KEY","secrets",100,/BEGIN (?:RSA|EC|OPENSSH|DSA|PGP) PRIVATE KEY/i],["AWS KEY","secrets",100,/\bAKIA[0-9A-Z]{16}\b/],["INTERNAL IP","internal",65,/\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3})\b/],["GDPR / PERSONAL DATA","privacy",55,/\b(?:GDPR|personal data|data subject|right to erasure|consent)\b/i],["HIPAA / PHI","health",65,/\b(?:HIPAA|PHI|patient id|diagnosis|medical record|treatment plan)\b/i],["CONFIDENTIAL CONTRACT","legal",65,/\b(?:NDA|non-disclosure|confidential|termination clause|indemnification)\b/i],["SOURCE CODE","source",35,/\b(?:def|class|import|SELECT|INSERT)\b/i],["M&A","corporate",90,/\b(?:merger|acquisition|M&A|due diligence|material nonpublic information)\b/i]];
+function inspect(p){const f=rules.filter(r=>r[3].test(p)).map(r=>({name:r[0],cat:r[1],w:r[2]}));const score=Math.min(100,f.reduce((a,x)=>a+x.w,0));const risk=score>=80?"critical":score>=55?"high":score?"medium":"low";const blocked=risk==="critical"||(f.some(x=>x.cat==="secrets")&&/\b(upload|send|share|paste|public|external)\b/i.test(p));return{f,score,risk,blocked};}
+function render(){const c={critical:0,high:0,medium:0,low:0};events.forEach(e=>c[e.risk]++);document.getElementById("total").textContent=events.length;document.getElementById("critical").textContent=c.critical;document.getElementById("high").textContent=c.high;document.getElementById("blocked").textContent=events.filter(e=>e.blocked).length;const max=Math.max(1,...Object.values(c));document.getElementById("bars").innerHTML=Object.entries(c).map(([k,v])=>`<div><div class="mb-1 flex justify-between"><span>${k.toUpperCase()}</span><b>${v}</b></div><div class="h-2 rounded bg-slate-800"><div class="h-2 rounded bg-cyan-400" style="width:${v/max*100}%"></div></div></div>`).join("");document.getElementById("log").innerHTML=events.slice().reverse().map(e=>`<div class="rounded-lg border border-slate-800 p-3"><div class="flex justify-between"><span>${e.time}</span><b class="${e.blocked?"text-red-400":"text-emerald-400"}">${e.blocked?"BLOCKED":"ALLOWED"}</b></div><div class="mt-1">${e.risk.toUpperCase()} · Score ${e.score} · ${e.f.length} finding(s)</div></div>`).join("")||'<p class="text-slate-500">No tests yet.</p>';}
+function run(p){const d=inspect(p);events.push({...d,time:new Date().toLocaleTimeString()});const r=document.getElementById("result");r.className="mt-4 rounded-xl border p-4 "+(d.blocked?"border-red-800 bg-red-950/30":"border-emerald-800 bg-emerald-950/30");r.classList.remove("hidden");r.innerHTML=`<div class="text-xl font-bold ${d.blocked?"text-red-400":"text-emerald-400"}">${d.blocked?"🚨 PROMPT BLOCKED":"✓ PROMPT ALLOWED"}</div><div class="mt-2 text-sm">Risk: <b>${d.risk.toUpperCase()}</b> · Score: <b>${d.score}</b> · Findings: <b>${d.f.length}</b></div><div class="mt-2 text-xs text-slate-300">${d.f.length?d.f.map(x=>x.name).join(" • "):"No policy indicators detected."}</div>`;render();}
+document.getElementById("inspect").onclick=()=>{const p=document.getElementById("prompt").value.trim();if(p)run(p)};document.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>{document.getElementById("prompt").value=samples[b.dataset.s];run(samples[b.dataset.s])});render();})();
+</script></body></html>
